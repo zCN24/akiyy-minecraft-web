@@ -26,7 +26,7 @@ mcweb/
 ## 安装依赖
 
 ```bash
-npm install
+pnpm install --shamefully-hoist
 ```
 
 ## 配置环境变量
@@ -41,12 +41,12 @@ cp .env.example .env
 
 开发模式（自动重启）:
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 生产模式:
 ```bash
-npm start
+pnpm start
 ```
 
 服务器将在 `http://localhost:3000` 启动
