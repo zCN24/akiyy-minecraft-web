@@ -56,7 +56,7 @@ npm start
 ### 后端
 - Express.js - Web 框架
 - Mongoose - MongoDB ODM
-- bcrypt - 密码加密
+- bcryptjs - 密码加密
 - jsonwebtoken - JWT 认证
 - dotenv - 环境变量管理
 - cors - 跨域资源共享
@@ -69,7 +69,7 @@ npm start
 ## 功能特性
 
 - ✅ RCON 远程管理
-- ✅ 用户认证系统（待实现）
+- ✅ 用户认证系统（已实现）
 - ✅ 服务器状态监控（待实现）
 - ✅ 命令控制台
 - ✅ 响应式设计
