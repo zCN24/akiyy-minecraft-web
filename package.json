@@ -1,7 +1,7 @@
 {
   "name": "mcweb",
   "version": "1.0.0",
-  "description": "Minecraft web management system",
+  "description": "Akiyy Hub - Server management system",
   "main": "server/index.js",
   "scripts": {
     "start": "node server/index.js",
@@ -17,7 +17,8 @@
     "jsonwebtoken": "^9.0.2",
     "dotenv": "^16.3.1",
     "cors": "^2.8.5",
-    "rcon-client": "^4.2.3"
+    "rcon-client": "^4.2.3",
+    "multer": "^1.4.5-lts.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"

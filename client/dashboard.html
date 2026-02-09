@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>管理面板 - Minecraft Web</title>
+    <title>管理面板 - Akiyy Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -12,7 +12,7 @@
     <nav class="bg-white shadow-md mb-8">
         <div class="container mx-auto px-4 py-4 flex justify-between items-center">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800">Minecraft Web 管理系统</h1>
+                <h1 class="text-2xl font-bold text-gray-800">Akiyy Hub</h1>
             </div>
             <div class="flex items-center gap-4">
                 <span class="text-gray-600">欢迎, <span id="username" class="font-semibold"></span></span>
@@ -69,6 +69,29 @@
                     <button type="submit"
                         class="w-full bg-purple-500 text-white py-2 rounded-lg hover:bg-purple-600 transition">
                         设置皮肤
+                    </button>
+                </form>
+            </div>
+
+            <!-- Upload Skin Card -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">上传皮肤文件</h2>
+                <form id="uploadSkinForm" class="space-y-4">
+                    <div>
+                        <label class="block text-gray-700 mb-2">选择皮肤文件</label>
+                        <input type="file" id="skinFile" accept=".png,.jpg,.jpeg"
+                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
+                        <p class="text-xs text-gray-500 mt-1">支持 PNG、JPG、JPEG 格式，最大 3MB</p>
+                    </div>
+                    <div id="uploadPreview" class="hidden">
+                        <label class="block text-gray-700 mb-2">预览</label>
+                        <img id="previewImage" class="max-w-xs border rounded-lg" alt="皮肤预览">
+                        <p id="fileInfo" class="text-xs text-gray-500 mt-2"></p>
+                    </div>
+                    <div id="uploadMessage" class="hidden p-3 rounded-lg text-sm"></div>
+                    <button type="submit"
+                        class="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition disabled:bg-gray-400 disabled:cursor-not-allowed">
+                        上传并设置皮肤
                     </button>
                 </form>
             </div>
@@ -171,6 +194,74 @@
                 }
             } catch (error) {
                 displayMessage(messageDiv, error.message || '网络错误', false);
+            }
+        });
+
+        // File input change handler (preview)
+        document.getElementById('skinFile').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            const previewDiv = document.getElementById('uploadPreview');
+            const previewImage = document.getElementById('previewImage');
+            const fileInfo = document.getElementById('fileInfo');
+
+            if (file) {
+                // Show preview
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewImage.src = e.target.result;
+                    previewDiv.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+
+                // Show file info
+                const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                fileInfo.textContent = `文件名: ${file.name} | 大小: ${fileSizeMB} MB`;
+            } else {
+                previewDiv.classList.add('hidden');
+            }
+        });
+
+        // Upload skin form
+        document.getElementById('uploadSkinForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fileInput = document.getElementById('skinFile');
+            const file = fileInput.files[0];
+            const messageDiv = document.getElementById('uploadMessage');
+
+            if (!file) {
+                displayMessage(messageDiv, '请选择要上传的皮肤文件', false);
+                return;
+            }
+
+            // Validate file size
+            const maxSize = 3 * 1024 * 1024; // 3MB
+            if (file.size > maxSize) {
+                displayMessage(messageDiv, '文件大小超过限制（最大3MB）', false);
+                return;
+            }
+
+            // Validate file type
+            const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+            if (!allowedTypes.includes(file.type)) {
+                displayMessage(messageDiv, '只支持 PNG、JPG、JPEG 格式', false);
+                return;
+            }
+
+            try {
+                displayMessage(messageDiv, '正在上传...', true);
+                const data = await uploadSkin(file);
+
+                if (data.success) {
+                    displayMessage(messageDiv, `${data.message} (文件: ${data.filename})`, true);
+                    showToast('皮肤上传成功！', 'success');
+                    // Clear form
+                    fileInput.value = '';
+                    document.getElementById('uploadPreview').classList.add('hidden');
+                } else {
+                    displayMessage(messageDiv, data.message, false);
+                }
+            } catch (error) {
+                displayMessage(messageDiv, error.message || '上传失败', false);
             }
         });
     </script>

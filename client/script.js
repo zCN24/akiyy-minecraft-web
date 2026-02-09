@@ -1,6 +1,6 @@
-// Minecraft Web Manager Client Script - Login/Register
+// Akiyy Hub Client Script - Login/Register
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = `${window.location.origin}/api`;
 
 // Utility Functions
 // =================
@@ -157,6 +157,43 @@ async function setSkin(type, value) {
     }
 }
 
+/**
+ * Upload skin file
+ */
+async function uploadSkin(file) {
+    try {
+        const token = getToken();
+        if (!token) {
+            throw new Error('未登录');
+        }
+
+        const formData = new FormData();
+        formData.append('skin', file);
+
+        const response = await fetch(`${API_URL}/player/skin/upload`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            body: formData
+        });
+
+        const data = await response.json();
+
+        // Handle token expiration
+        if (response.status === 401) {
+            clearAuth();
+            window.location.href = 'index.html';
+            throw new Error('登录已过期，请重新登录');
+        }
+
+        return data;
+    } catch (error) {
+        console.error('Upload skin error:', error);
+        throw error;
+    }
+}
+
 // Login/Register Page Logic
 // ==========================
 
@@ -170,8 +207,8 @@ const registerFormElement = document.getElementById('registerFormElement');
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    // Check if already logged in
-    if (isAuthenticated()) {
+    // Only redirect on the login/register page to avoid refresh loop on dashboard
+    if (loginTab && registerTab && isAuthenticated()) {
         window.location.href = 'dashboard.html';
         return;
     }
@@ -285,7 +322,15 @@ async function handleRegister(e) {
             body: JSON.stringify({ username, password, minecraftId })
         });
 
-        const data = await response.json();
+        let data;
+        try {
+            data = await response.json();
+        } catch (parseError) {
+            console.error('Failed to parse response:', parseError);
+            console.log('Response text:', await response.text());
+            displayMessage(errorDiv, '服务器响应错误，请检查网络连接', false);
+            return;
+        }
 
         if (data.success) {
             // Show success message
@@ -305,6 +350,7 @@ async function handleRegister(e) {
         }
     } catch (error) {
         console.error('Register error:', error);
+        console.error('Error stack:', error.stack);
         displayMessage(errorDiv, '网络错误，请稍后重试', false);
     }
 }

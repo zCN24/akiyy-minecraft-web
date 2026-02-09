@@ -1,4 +1,4 @@
-# Minecraft Web 管理系统
+# Akiyy Hub
 
 基于 Node.js Express 的 Minecraft 服务器 Web 管理系统，使用 RCON 协议进行远程管理。
 
